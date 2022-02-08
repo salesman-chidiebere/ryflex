@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'package:ryflex/main_page.dart';
 import 'package:ryflex/AllWidgets/progressDialog.dart';
 
 class LoginSignUp extends StatefulWidget {
@@ -15,7 +15,6 @@ class LoginSignUp extends StatefulWidget {
 class _LoginSignUpState extends State<LoginSignUp> {
 
   final userRef = FirebaseFirestore.instance.collection("users");
-
 
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
@@ -217,7 +216,8 @@ class _LoginSignUpState extends State<LoginSignUp> {
 
   void _register() async {
 
-    showDialog(context: context,
+    showDialog(
+        context: context,
         barrierDismissible: false,
         builder: (BuildContext context){
           return ProgressDialog(message: "Registering, please wait...");
@@ -228,9 +228,9 @@ class _LoginSignUpState extends State<LoginSignUp> {
          email: emailController.text.trim(),
          password: passwordController.text.trim())
          .catchError((errMsg){
+          Navigator.pop(context);
+          displayToastMsg(context, "$errMsg", "Error");
            print("Our Error message: $errMsg");
-           Navigator.pop(context);
-           displayToastMsg(context, "$errMsg", "Error");
      })
     ).user;
     if(user != null){
@@ -239,31 +239,29 @@ class _LoginSignUpState extends State<LoginSignUp> {
         "name" : userNameController.text.trim(),
         "email" : emailController.text.trim(),
         "phone" : phoneController.text.trim()
-      }).then(
-         (value) {
-           Navigator.pop(context);
-           displayToastMsg(context, "Congratulations, account created", "Success");
-         }).catchError((onError){
-        Navigator.pop(context);
-        displayToastMsg(context, "$onError", "Error");
-      });
-      
+      })
+          .then((value) => null)
+          .catchError((onError){
 
+      });
+      Navigator.pop(context);
+      displayToastMsg(context, "Congratulations, account created", "Success");
       print("User created successly");
       setState(() {
         signUpPage = false;
         btnText = "Login";
       });
     }else {
-      print("User account creation failed");
       Navigator.pop(context);
-      displayToastMsg(context, "Account creation failed...", "Failed");
+      displayToastMsg(context, "User account creation failed", "Failed");
+      print("User account creation failed");
     }
   }
 
   void _login() async {
 
-    showDialog(context: context,
+    showDialog(
+        context: context,
         barrierDismissible: false,
         builder: (BuildContext context){
           return ProgressDialog(message: "Verifying Login, please wait...");
@@ -274,18 +272,20 @@ class _LoginSignUpState extends State<LoginSignUp> {
             email: emailController.text.trim(),
             password: passwordController.text.trim())
             .catchError((errMsg) {
-          print("Our Error message: $errMsg");
           Navigator.pop(context);
           displayToastMsg(context, "$errMsg", "Error");
+          print("Our Error message: $errMsg");
         })
     ).user;
     if (user != null) {
+      Navigator.pop(context);
+      Navigator.push(context, MaterialPageRoute(builder: (context)
+        => MainScreen()));
       print("Login Successful");
-      Navigator.pop(context);
     } else {
-      print("Login failed");
       Navigator.pop(context);
-      displayToastMsg(context, "User login failed", "Failed");
+      displayToastMsg(context, "Login failed", "Failed");
+      print("Login failed");
     }
   }
 
@@ -305,29 +305,24 @@ class _LoginSignUpState extends State<LoginSignUp> {
 
 }
 
-/*displayToastMsg(String message, BuildContext context) {
-  Fluttertoast.showToast(msg: message);
-}*/
-
 Future<void> displayToastMsg(BuildContext context, String msg, String title1) async {
   return showDialog<void>(
-    context: context,
-    barrierDismissible: false, // user must tap button!
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text("$title1"),
-        content: Text(msg,),
-        actions: <Widget>[
-          TextButton(
-            child: const Text('OK'),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-        ],
-      );
-    },
-  );
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context){
+        return AlertDialog(
+          title: Text("$title1"),
+          content: Text("$msg"),
+          actions: [
+            TextButton(
+              child: Text('Close'),
+              onPressed: (){
+                Navigator.of(context).pop();
+              },
+            )
+          ],
+        );
+      });
 }
 
 
