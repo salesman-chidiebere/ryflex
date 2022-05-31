@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:ryflex/main_page.dart';
+import 'package:ryflex/map_page.dart';
 import 'package:ryflex/AllWidgets/progressDialog.dart';
 
 class LoginSignUp extends StatefulWidget {
